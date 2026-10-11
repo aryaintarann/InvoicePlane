@@ -58,6 +58,7 @@ jobs:
         uses: ./.github/actions/setup-php-composer
         with:
           php-version: ${{ github.event.inputs.php_version || '8.2' }}
+          php-extensions: 'mbstring, xml, ctype, json, fileinfo, pdo, sqlite, mysql, bcmath, gd, curl, zip'
 
       - name: Copy ipconfig.php
         run: cp ipconfig.php.example ipconfig.php
@@ -76,6 +77,12 @@ jobs:
           mysql -h 127.0.0.1 -u root -proot invoiceplane_test -e "SELECT 1;" 2>/dev/null
 
       - name: Run PHPUnit
+        env:
+          IP_TEST_DB: '1'
+          IP_TEST_DB_HOST: '127.0.0.1'
+          IP_TEST_DB_PORT: '3306'
+          IP_TEST_DB_USER: root
+          IP_TEST_DB_PASSWORD: root
         run: |
           if [ -f phpunit.xml ] || [ -f phpunit.xml.dist ]; then
             vendor/bin/phpunit ${{ github.event.inputs.fail_fast == 'true' && '--stop-on-failure' || '' }}

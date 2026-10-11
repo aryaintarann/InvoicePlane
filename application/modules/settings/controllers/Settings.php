@@ -51,6 +51,16 @@ class Settings extends Admin_Controller
         if ($this->input->post('settings')) {
             $settings = $this->input->post('settings');
 
+            require_once APPPATH . 'modules/notifications/libraries/Whatsapp_policy.php';
+            try {
+                Whatsapp_policy::validate_settings($settings);
+            } catch (InvalidArgumentException $e) {
+                $this->session->set_flashdata('alert_error', $e->getMessage());
+                redirect('settings');
+
+                return;
+            }
+
             $settings = $this->handleTaxRateDecimalPlaces($settings);
 
             // Build array of all settings to save in a single batch operation

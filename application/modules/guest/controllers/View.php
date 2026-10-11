@@ -284,10 +284,16 @@ class View extends Base_Controller
 
         $this->load->helper('mailer');
 
-        $this->mdl_quotes->reject_quote_by_key($quote_url_key);
+        try {
+            $rejected = $this->mdl_quotes->reject_quote_by_key($quote_url_key, $this->input->post('quote_rejection_reason'));
+        } catch (InvalidArgumentException $exception) {
+            show_error(htmlsc($exception->getMessage()), 400);
+
+            return;
+        }
 
         // Only send email if the update actually changed the quote status
-        if ($this->db->affected_rows() > 0) {
+        if ($rejected) {
             email_quote_status($quote->quote_id, 'rejected');
         }
 

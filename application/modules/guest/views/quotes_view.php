@@ -24,13 +24,10 @@ if (in_array($quote->quote_status_id, [2, 3])) {
                     <?php _trans('approve_this_quote'); ?>
                 </button>
             </form>
-            <form method="post" action="<?php echo site_url('guest/quotes/reject/' . (int) $quote->quote_id); ?>" style="display: inline;">
-                <?php _csrf_field(); ?>
-                <button type="submit" class="btn btn-danger">
+            <a href="#quote-rejection" class="btn btn-danger">
                     <i class="fa fa-times-circle"></i>
                     <?php _trans('reject_this_quote'); ?>
-                </button>
-            </form>
+            </a>
 <?php
 } elseif ($quote->quote_status_id == 4) {
     ?>
@@ -61,6 +58,7 @@ if (in_array($quote->quote_status_id, [2, 3])) {
 <div id="content">
 
     <?php echo $this->layout->load_view('layout/alerts'); ?>
+    <?php echo $this->load->view('quotes/partial_rejection_reason', ['quote' => $quote], true); ?>
 
     <div class="quote">
 
@@ -229,4 +227,7 @@ foreach ($items as $i => $item) {
 </div>
 
 <?php
+if (in_array((int) $quote->quote_status_id, [2, 3], true)) {
+    echo $this->load->view('quotes/partial_rejection_form', ['rejection_action' => site_url('guest/quotes/reject/' . (int) $quote->quote_id)], true);
+}
 _dropzone_script($quote->quote_url_key, $quote->client_id, 'guest/get', false);

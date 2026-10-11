@@ -287,6 +287,15 @@ foreach ($custom_fields as $custom_field) {
                         </div>
 
                         <div class="form-group">
+                            <label for="client_whatsapp_consent">
+                                <input type="checkbox" name="client_whatsapp_consent" id="client_whatsapp_consent" value="1"
+                                    <?php echo $this->mdl_clients->form_value('client_whatsapp_consent') == 1 ? 'checked' : ''; ?>>
+                                <?php echo html_escape(trans('whatsapp_consent')); ?>
+                            </label>
+                            <p class="help-block"><?php echo html_escape(trans('whatsapp_consent_help')); ?></p>
+                        </div>
+
+                        <div class="form-group">
                             <label for="client_email"><?php _trans('email_address'); ?></label>
 
                             <div class="controls">

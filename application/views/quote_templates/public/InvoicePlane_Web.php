@@ -37,12 +37,9 @@
                                 <i class="fa fa-check"></i><?php _trans('approve_this_quote'); ?>
                             </button>
                         </form>
-                        <form method="post" action="<?php echo site_url('guest/view/reject_quote/' . $quote_url_key); ?>" style="display: inline;">
-                            <?php _csrf_field(); ?>
-                            <button type="submit" class="btn btn-danger">
+                        <a href="#quote-rejection" class="btn btn-danger">
                                 <i class="fa fa-times-circle"></i><?php _trans('reject_this_quote'); ?>
-                            </button>
-                        </form>
+                        </a>
                     <?php } ?>
                 <?php } ?>
                 <a href="<?php echo site_url('guest/view/generate_quote_pdf/' . $quote_url_key); ?>"
@@ -66,6 +63,8 @@
             echo '<br>';
         }
 ?>
+
+        <?php echo get_instance()->load->view('quotes/partial_rejection_reason', ['quote' => $quote], true); ?>
 
         <div class="quote">
 
@@ -338,6 +337,10 @@ if (count($attachments) > 0) {
                 </div>
 
             </div><!-- .quote-items -->
+            <?php if (in_array((int) $quote->quote_status_id, [2, 3], true)
+                && isset($_SESSION['user_id'], $_SESSION['user_type']) && (int) $_SESSION['user_type'] === 2) {
+                echo get_instance()->load->view('quotes/partial_rejection_form', ['rejection_action' => site_url('guest/view/reject_quote/' . $quote_url_key)], true);
+            } ?>
         </div><!-- .quote -->
     </div><!-- #content -->
 </div>

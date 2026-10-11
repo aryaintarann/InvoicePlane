@@ -21,6 +21,10 @@ variables.
 Uploads, session/cache storage, and the database persist across restarts via named volumes
 (`invoiceplane-uploads`, `invoiceplane-storage`, `invoiceplane-db`).
 
+The `scheduler` service calls the existing authenticated cron endpoint every minute, processing
+recurring invoices and WhatsApp notifications. Generate a Cron key in Settings > General.
+The scheduler reloads that key from the database each minute and waits when no key exists.
+
 This is what's used for local development/testing and is tested in CI on every change to the
 Docker setup (see `.github/workflows/compose-yml-test.yml`).
 

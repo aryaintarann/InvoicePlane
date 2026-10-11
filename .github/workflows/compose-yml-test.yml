@@ -13,12 +13,14 @@ on:
       - 'compose.yml'
       - 'resources/docker/Containerfile'
       - 'resources/docker/entrypoint.sh'
+      - 'resources/docker/scheduler.php'
       - '.github/workflows/compose-yml-test.yml'
   pull_request:
     paths:
       - 'compose.yml'
       - 'resources/docker/Containerfile'
       - 'resources/docker/entrypoint.sh'
+      - 'resources/docker/scheduler.php'
       - '.github/workflows/compose-yml-test.yml'
   workflow_dispatch:
 

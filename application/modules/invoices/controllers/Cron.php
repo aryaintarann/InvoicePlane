@@ -35,8 +35,8 @@ class Cron extends Base_Controller
         // Check the provided cron key
         if ( ! hash_equals((string) get_setting('cron_key'), (string) $cron_key)) {
             $this->_record_cron_rate_limit_attempt();
-            log_message('error', '[Cron Recurring Invoices] Wrong cron key provided! '
-                . sanitize_for_logging((string) $cron_key));
+            log_message('error', '[Cron Recurring Invoices] Wrong cron key provided from: '
+                . sanitize_for_logging($this->input->ip_address()));
             show_error(trans('wrong_cron_key_provided'), 500);
             exit('Wrong cron key!');
         }
@@ -121,6 +121,16 @@ class Cron extends Base_Controller
 
                 // Copy the original invoice to the new invoice
                 $this->mdl_invoices->copy_invoice($source_id, $target_id, false);
+
+                if (get_setting('whatsapp_automatic_on_recur', '0') === '1') {
+                    $discount = ['item' => $this->mdl_invoice_amounts->get_global_discount($target_id)];
+                    if ( ! $this->mdl_invoice_amounts->calculate($target_id, $discount)) {
+                        $this->db->trans_rollback();
+                        log_message('error', '[Cron Recurring Invoices] Invoice calculation refused; billing cycle rolled back.');
+                        continue;
+                    }
+                    $this->mdl_invoices->mark_sent($target_id, false);
+                }
             }
 
             $this->db->trans_complete();
@@ -142,6 +152,11 @@ class Cron extends Base_Controller
             if (IP_DEBUG) {
                 log_message('debug', '[Cron Recurring Invoices] Recurring Invoice with id ' . $target_id . ' was created');
                 log_message('debug', '[Cron Recurring Invoices] Recurring Invoice with sourceId ' . $source_id . ' was copied to id ' . $target_id);
+            }
+
+            if (get_setting('whatsapp_automatic_on_recur', '0') === '1') {
+                $this->load->helper('notifications');
+                notify_whatsapp('issued', (int) $target_id);
             }
 
             // Email the new invoice if applicable
@@ -209,7 +224,9 @@ class Cron extends Base_Controller
                 $email_invoice = email_invoice($target_id, $pdf_template, $from, $to, $subject, $body, $cc, $bcc, $attachment_files);
 
                 if ($email_invoice) {
-                    $this->mdl_invoices->mark_sent($target_id);
+                    $this->mdl_invoices->mark_sent($target_id, false);
+                    $this->load->helper('notifications');
+                    notify_whatsapp('issued', (int) $target_id, ['send' => get_setting('whatsapp_automatic_on_recur', '0') === '1']);
                 } else {
                     log_message('error', '[Cron Recurring Invoices] Invoice ' . $target_id . 'could not be sent. Please review your Email settings.');
                 }
@@ -217,6 +234,9 @@ class Cron extends Base_Controller
                 log_message('error', '[Cron Recurring Invoices] Automatic_email_on_recur was not set or mailer was not configured');
             }
         }
+
+        $this->load->helper('notifications');
+        notify_whatsapp('cron');
 
         if (IP_DEBUG) {
             log_message('debug', '[Cron Recurring Invoices] ' . count($invoices_recurring) . ' recurring invoices processed');

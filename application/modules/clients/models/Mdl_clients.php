@@ -90,6 +90,10 @@ class Mdl_Clients extends Response_Model
             'client_mobile' => [
                 'field' => 'client_mobile',
             ],
+            'client_whatsapp_consent' => [
+                'field' => 'client_whatsapp_consent',
+                'rules' => 'in_list[0,1]',
+            ],
             'client_email' => [
                 'field' => 'client_email',
                 'label' => trans('email_address'),
@@ -220,6 +224,7 @@ class Mdl_Clients extends Response_Model
         if ( ! isset($db_array['client_active'])) {
             $db_array['client_active'] = 0;
         }
+        $db_array['client_whatsapp_consent'] = ($db_array['client_whatsapp_consent'] ?? '0') === '1' ? 1 : 0;
 
         return $db_array;
     }

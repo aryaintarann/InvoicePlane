@@ -55,12 +55,9 @@ foreach ($quotes as $quote) {
                                 <i class="fa fa-check"></i> <?php _trans('approve'); ?>
                             </button>
                         </form>
-                        <form method="post" action="<?php echo site_url('guest/quotes/reject/' . (int) $quote->quote_id); ?>" style="display: inline;">
-                            <?php _csrf_field(); ?>
-                            <button type="submit" class="btn btn-danger">
+                        <a class="btn btn-danger" href="<?php echo site_url('guest/quotes/view/' . (int) $quote->quote_id) . '#quote-rejection'; ?>">
                                 <i class="fa fa-ban"></i> <?php _trans('reject'); ?>
-                            </button>
-                        </form>
+                        </a>
 <?php
         }
     ?>

@@ -24,6 +24,22 @@ class Mdl_Quotes extends Response_Model
 
     public $date_modified_field = 'quote_date_modified';
 
+    public static function normalize_rejection_reason($reason): string
+    {
+        if ($reason === null) {
+            return '';
+        }
+        if ( ! is_string($reason) || ! mb_check_encoding($reason, 'UTF-8')) {
+            throw new InvalidArgumentException(trans('quote_rejection_reason_invalid'));
+        }
+        $reason = trim(str_replace(["\r\n", "\r"], "\n", $reason));
+        if (mb_strlen($reason, 'UTF-8') > 2000) {
+            throw new InvalidArgumentException(trans('quote_rejection_reason_invalid'));
+        }
+
+        return $reason;
+    }
+
     /**
      * @return array
      */
@@ -110,6 +126,13 @@ class Mdl_Quotes extends Response_Model
     {
         if ($db_array === null) {
             $db_array = $this->db_array();
+        }
+
+        if (array_key_exists('quote_rejection_reason', $db_array)) {
+            $db_array['quote_rejection_reason'] = self::normalize_rejection_reason($db_array['quote_rejection_reason']);
+        }
+        if (isset($db_array['quote_status_id']) && (int) $db_array['quote_status_id'] !== 5) {
+            $db_array['quote_rejection_reason'] = null;
         }
 
         if (array_key_exists('quote_password', $db_array)) {
@@ -509,15 +532,15 @@ class Mdl_Quotes extends Response_Model
         $this->db->update('ip_quotes');
     }
 
-    /**
-     * @param $quote_url_key
-     */
-    public function reject_quote_by_key($quote_url_key)
+    public function reject_quote_by_key($quote_url_key, $reason = ''): bool
     {
+        $reason = self::normalize_rejection_reason($reason);
         $this->db->where_in('quote_status_id', [2, 3]);
         $this->db->where('quote_url_key', $quote_url_key);
         $this->db->set('quote_status_id', 5);
-        $this->db->update('ip_quotes');
+        $this->db->set('quote_rejection_reason', $reason);
+
+        return $this->db->update('ip_quotes') && $this->db->affected_rows() === 1;
     }
 
     /**
@@ -534,12 +557,15 @@ class Mdl_Quotes extends Response_Model
     /**
      * @param $quote_id
      */
-    public function reject_quote_by_id($quote_id)
+    public function reject_quote_by_id($quote_id, $reason = ''): bool
     {
+        $reason = self::normalize_rejection_reason($reason);
         $this->db->where_in('quote_status_id', [2, 3]);
         $this->db->where('quote_id', $quote_id);
         $this->db->set('quote_status_id', 5);
-        $this->db->update('ip_quotes');
+        $this->db->set('quote_rejection_reason', $reason);
+
+        return $this->db->update('ip_quotes') && $this->db->affected_rows() === 1;
     }
 
     /**

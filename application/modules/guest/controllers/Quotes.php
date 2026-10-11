@@ -192,10 +192,16 @@ class Quotes extends Guest_Controller
             show_404();
         }
 
-        $this->mdl_quotes->reject_quote_by_id($quote_id);
+        try {
+            $rejected = $this->mdl_quotes->reject_quote_by_id($quote_id, $this->input->post('quote_rejection_reason'));
+        } catch (InvalidArgumentException $exception) {
+            show_error(htmlsc($exception->getMessage()), 400);
+
+            return;
+        }
 
         // Only send email if the update actually changed the quote status
-        if ($this->db->affected_rows() > 0) {
+        if ($rejected) {
             email_quote_status($quote_id, 'rejected');
         }
 

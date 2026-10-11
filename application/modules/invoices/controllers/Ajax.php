@@ -124,6 +124,7 @@ class Ajax extends Admin_Controller
             // Everything below writes; a refused (negative) total must undo it instead of reporting success.
             $this->load->model('invoices/mdl_invoice_amounts');
             $this->mdl_invoice_amounts->negative_total_refused = false;
+            $previous_invoice                                  = $this->db->get_where('ip_invoices', ['invoice_id' => $invoice_id])->row();
             $this->db->trans_begin();
 
             foreach ($items as $item) {
@@ -269,6 +270,11 @@ class Ajax extends Admin_Controller
             }
 
             $this->db->trans_commit();
+
+            if ($previous_invoice && (int) $previous_invoice->invoice_status_id === 1 && (int) $invoice_status_id !== 1) {
+                $this->load->helper('notifications');
+                notify_whatsapp('issued', (int) $invoice_id);
+            }
 
             $response = [
                 'success' => 1,

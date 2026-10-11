@@ -158,6 +158,9 @@ class Invoices extends Admin_Controller
 
         $invoice->invoice_password = $this->mdl_invoices->decrypt_invoice_password($invoice->invoice_password);
 
+        $this->load->model('notifications/mdl_notifications');
+        $this->layout->set('notifications', $this->db->table_exists('ip_notifications') ? $this->mdl_notifications->history((int) $invoice_id) : []);
+
         $custom_fields = $this->mdl_custom_fields->by_table('ip_invoice_custom')->get()->result();
         $custom_values = [];
         foreach ($custom_fields as $custom_field) {

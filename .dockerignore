@@ -1,4 +1,6 @@
 .gitignore
+.env
+ipconfig.php
 CONTRIBUTING.md
 Dockerfile
 license.txt

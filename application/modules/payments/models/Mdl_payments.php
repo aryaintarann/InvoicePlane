@@ -148,6 +148,11 @@ class Mdl_Payments extends Response_Model
             ? (string) $db_array['payment_external_id']
             : null;
 
+        if ($amount <= 0) {
+            return false;
+        }
+        $this->db->trans_begin();
+
         // Atomic gate: claim the outstanding balance in one statement. Gating on
         // "balance covers this amount" (not just "balance > 0") also refuses an
         // oversized capture -- e.g. one created against a larger balance that a
@@ -160,6 +165,7 @@ class Mdl_Payments extends Response_Model
         $this->db->update('ip_invoice_amounts');
 
         if ($this->db->affected_rows() < 1) {
+            $this->db->trans_rollback();
             log_message('warning', __CLASS__ . '::' . __FUNCTION__ . ' - Refused gateway payment for invoice ' . sanitize_for_logging($invoice_id) . ': balance no longer covers this amount (concurrent callback, already paid, or oversized).');
 
             return false;
@@ -179,6 +185,7 @@ class Mdl_Payments extends Response_Model
         $insert_sql = preg_replace('/^INSERT INTO/i', 'INSERT IGNORE INTO', $this->db->get_compiled_insert('ip_payments'), 1);
         $this->db->query($insert_sql);
         $recorded = $this->db->affected_rows() > 0;
+        $payment_id = (int) $this->db->insert_id();
 
         if ( ! $recorded) {
             log_message('warning', __CLASS__ . '::' . __FUNCTION__ . ' - Duplicate external payment id for invoice ' . sanitize_for_logging($invoice_id) . '; gate claim rolled back by recalculation.');
@@ -188,7 +195,7 @@ class Mdl_Payments extends Response_Model
         // balance from the real rows, correcting the gate arithmetic whether
         // the insert landed or was ignored.
         $global_discount['item'] = $this->mdl_invoice_amounts->get_global_discount($invoice_id);
-        $this->mdl_invoice_amounts->calculate($invoice_id, $global_discount);
+        $calculated              = $this->mdl_invoice_amounts->calculate($invoice_id, $global_discount);
 
         $amounts = $this->db->where('invoice_id', $invoice_id)->get('ip_invoice_amounts')->row();
 
@@ -197,10 +204,19 @@ class Mdl_Payments extends Response_Model
             $this->db->set('invoice_status_id', 4);
             $this->db->update('ip_invoices');
 
-            $this->mdl_invoice_amounts->calculate($invoice_id, $global_discount);
+            $calculated = $this->mdl_invoice_amounts->calculate($invoice_id, $global_discount) && $calculated;
         }
 
-        return $recorded;
+        if ( ! $recorded || ! $calculated || ! $this->db->trans_status()) {
+            $this->db->trans_rollback();
+
+            return false;
+        }
+        $this->db->trans_commit();
+        $this->load->helper('notifications');
+        notify_whatsapp('payment', $payment_id, ['invoice_id' => $invoice_id, 'amount' => (string) $amount, 'balance' => (string) $amounts->invoice_balance]);
+
+        return true;
     }
 
     /**
@@ -212,16 +228,22 @@ class Mdl_Payments extends Response_Model
         $this->load->model('invoices/mdl_invoice_amounts');
 
         // Save the payment
+        $is_new = ! $id;
+        $this->db->trans_begin();
+        // Serialize manual recalculation with other manual and gateway payments.
+        $this->db->where('invoice_id', $db_array['invoice_id'])->set('invoice_id', 'invoice_id', false)->update('ip_invoice_amounts');
         $id = parent::save($id, $db_array);
 
         $global_discount['item'] = $this->mdl_invoice_amounts->get_global_discount($db_array['invoice_id']);
         // Recalculate invoice amounts
-        $this->mdl_invoice_amounts->calculate($db_array['invoice_id'], $global_discount);
+        $calculated = $this->mdl_invoice_amounts->calculate($db_array['invoice_id'], $global_discount);
 
         // Set proper status for the invoice
         $invoice = $this->db->where('invoice_id', $db_array['invoice_id'])->get('ip_invoice_amounts')->row();
 
         if ($invoice == null) {
+            $this->db->trans_rollback();
+
             return false;
         }
 
@@ -237,7 +259,18 @@ class Mdl_Payments extends Response_Model
 
         $global_discount['item'] = $this->mdl_invoice_amounts->get_global_discount($db_array['invoice_id']);
         // Recalculate invoice amounts
-        $this->mdl_invoice_amounts->calculate($db_array['invoice_id'], $global_discount);
+        $calculated = $this->mdl_invoice_amounts->calculate($db_array['invoice_id'], $global_discount) && $calculated;
+
+        if ( ! $id || ! $calculated || ! $this->db->trans_status()) {
+            $this->db->trans_rollback();
+
+            return false;
+        }
+        $this->db->trans_commit();
+        if ($is_new && (float) $db_array['payment_amount'] > 0) {
+            $this->load->helper('notifications');
+            notify_whatsapp('payment', (int) $id, ['invoice_id' => (int) $db_array['invoice_id'], 'amount' => (string) $db_array['payment_amount'], 'balance' => (string) $invoice->invoice_balance]);
+        }
 
         return $id;
     }
