@@ -25,6 +25,7 @@ runs any pending database migrations automatically on startup.
 | `DB_PORT` | `3306` | Database port |
 | `CI_ENV` | `production` | Set to `development` to show all PHP errors |
 | `ENABLE_DEBUG` | `false` | Enable advanced debug logging |
+| `FONNTE_TOKEN` | *(empty)* | Fonnte device token for WhatsApp notifications. Requires an image containing the WhatsApp module; see [WHATSAPP.md](WHATSAPP.md). |
 | `SESS_SAVE_PATH` | PHP's `sys_get_temp_dir()` | Directory for session files. Set to an absolute path outside the document root for extra security. Do **not** pass an empty string — it overrides PHP's `session.save_path` and breaks login / the setup wizard; unset it instead to get the default. |
 | `SESS_COOKIE_NAME` | `ip_session` | Session cookie name |
 | `SESS_TABLE_NAME` | `ip_sessions` | Session database table name (only used when `SESS_DRIVER=database`) |
@@ -51,6 +52,19 @@ runs any pending database migrations automatically on startup.
 | `SUMEX_SETTINGS` | `false` | Enable Swiss medical invoice (Sumex) customizations |
 | `SUMEX_URL` | — | URL to post Sumex XML to in order to receive a generated PDF |
 | `ENCRYPTION_CIPHER` | `AES-256` | Cipher used for encrypted settings |
+
+## Scheduler
+
+`compose.yml` includes a `scheduler` service that calls `invoices/cron/recur` every minute using
+the Cron key stored in Settings > General. Generate that key before enabling scheduled work.
+The scheduler reads the current key on each run, retries application/database availability
+failures on the following minute, and writes only fixed status messages to its logs.
+The bundled Apache configuration excludes cron URLs from access logs because their path
+contains the authentication key. Scheduler status remains available in scheduler logs.
+
+Start all services with `docker compose -f compose.yml up -d --build`; starting only `app`
+does not start its scheduler. Inspect worker status with
+`docker compose -f compose.yml logs --tail 10 scheduler`.
 
 ## Default admin user
 

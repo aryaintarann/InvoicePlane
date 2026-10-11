@@ -685,7 +685,7 @@ class Mdl_Invoices extends Response_Model
     /**
      * @param $invoice_id
      */
-    public function mark_sent($invoice_id)
+    public function mark_sent($invoice_id, bool $notify = true)
     {
         $invoice = $this->get_by_id($invoice_id);
 
@@ -707,7 +707,11 @@ class Mdl_Invoices extends Response_Model
             // Save?
             if ($up) {
                 $this->db->where('invoice_id', $invoice_id);
-                $this->db->update('ip_invoices');
+                $saved = $this->db->update('ip_invoices');
+                if ($saved && $notify && (int) $invoice->invoice_status_id === 1) {
+                    $this->load->helper('notifications');
+                    notify_whatsapp('issued', (int) $invoice_id);
+                }
             }
         }
     }

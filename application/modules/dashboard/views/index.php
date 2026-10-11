@@ -46,6 +46,9 @@
                 <table class="table table-hover table-bordered table-condensed no-margin">
 <?php
 foreach ($quote_status_totals as $total) {
+    if ((int) $total['quote_status_id'] === 3) {
+        continue;
+    }
     ?>
                     <tr>
                         <td>

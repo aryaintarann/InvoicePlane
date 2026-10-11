@@ -58,6 +58,9 @@ DISABLE_SETUP=false
 # Please notice the additional instructions in the htaccess file!
 REMOVE_INDEXPHP=false
 
+# WhatsApp device token. Keep this file private; the token is never shown in Settings.
+FONNTE_TOKEN=''
+
 # These database settings are set during the initial setup. If editing this
 # file by hand, quote every value - an unquoted value ends at the first
 # space or '#', which silently truncates a password containing either.

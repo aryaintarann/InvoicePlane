@@ -686,3 +686,7 @@ if ($default_custom) {
 
 <?php
 _dropzone_script($invoice->invoice_url_key, $invoice->client_id);
+?>
+<div class="container-fluid">
+    <?php $this->layout->load_view('notifications/history'); ?>
+</div>

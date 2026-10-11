@@ -13,12 +13,33 @@ services:
       DB_PASSWORD: invoiceplane
       DB_DATABASE: invoiceplane
       ENCRYPTION_KEY: dev-key-change-me-in-production-00
+      FONNTE_TOKEN: ${FONNTE_TOKEN:-}
+      CUSTOM_TEMPLATES_FOLDER: /var/www/invoiceplane-templates/
+      CUSTOM_INVOICE_TEMPLATES_PDF: Professional
+      CUSTOM_QUOTE_TEMPLATES_PDF: Professional
     depends_on:
       db:
         condition: service_healthy
     volumes:
       - invoiceplane-uploads:/var/www/html/uploads
       - invoiceplane-storage:/var/www/html/storage
+      - ./templates:/var/www/invoiceplane-templates:ro
+
+  scheduler:
+    image: c8n.io/mpldr/invoiceplane
+    entrypoint: ["php", "/usr/local/bin/scheduler.php"]
+    init: true
+    restart: unless-stopped
+    environment:
+      DB_HOSTNAME: db
+      DB_USERNAME: invoiceplane
+      DB_PASSWORD: invoiceplane
+      DB_DATABASE: invoiceplane
+    depends_on:
+      app:
+        condition: service_started
+      db:
+        condition: service_healthy
 
   db:
     image: mariadb:11

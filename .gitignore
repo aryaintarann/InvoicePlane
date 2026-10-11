@@ -2,6 +2,7 @@
 /application/config/development
 /application/sessions
 /ipconfig.php
+/.env
 
 # Dependencies
 /node_modules
@@ -17,10 +18,12 @@ audit-report.json
 updated-packages.txt
 pint_output.log
 /.phpunit.result.cache
+/.phpunit.cache/
 /.sandbox-tools
 
 # Other files
 .htaccess
+!/templates/.htaccess
 .idea
 .todo
 .sass-cache

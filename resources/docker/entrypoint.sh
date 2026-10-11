@@ -55,6 +55,7 @@ SUMEX_SETTINGS_SAFE="$(sanitize_config_value "${SUMEX_SETTINGS:-false}")"
 SUMEX_URL_SAFE="$(sanitize_config_value "${SUMEX_URL:-}")"
 ENCRYPTION_KEY_SAFE="$(sanitize_config_value "$ENCRYPTION_KEY")"
 ENCRYPTION_CIPHER_SAFE="$(sanitize_config_value "${ENCRYPTION_CIPHER:-AES-256}")"
+FONNTE_TOKEN_SAFE="$(sanitize_config_value "${FONNTE_TOKEN:-}")"
 
 # Generate ipconfig.php from sanitized environment variables
 cat > "$CONFIG" <<EOF
@@ -105,6 +106,7 @@ SUMEX_URL=${SUMEX_URL_SAFE}
 
 ENCRYPTION_KEY=${ENCRYPTION_KEY_SAFE}
 ENCRYPTION_CIPHER=${ENCRYPTION_CIPHER_SAFE}
+FONNTE_TOKEN=${FONNTE_TOKEN_SAFE}
 
 SETUP_COMPLETED=true
 EOF

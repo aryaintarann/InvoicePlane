@@ -48,6 +48,10 @@ if ($quote->quote_status_id == 1) {
 } // End if
 ?>
 
+        $('#quote_status_id').on('change', function () {
+            $('#quote_rejection_reason_group').toggle($(this).val() === '5');
+        });
+
         $('#btn_save_quote').click(function () {
             var items = [];
             var item_order = 1;
@@ -71,6 +75,7 @@ if ($quote->quote_status_id == 1) {
                     quote_date_created: $('#quote_date_created').val(),
                     quote_date_expires: $('#quote_date_expires').val(),
                     quote_status_id: $('#quote_status_id').val(),
+                    quote_rejection_reason: $('#quote_rejection_reason').val(),
                     quote_password: $('#quote_password').val(),
                     items: JSON.stringify(items),
                     quote_discount_amount: $('#quote_discount_amount').val(),
@@ -431,6 +436,12 @@ foreach ($quote_statuses as $key => $status) {
 }
 ?>
                                     </select>
+                                </div>
+                                <div class="quote-properties" id="quote_rejection_reason_group"<?php echo (int) $quote->quote_status_id === 5 ? '' : ' style="display: none;"'; ?>>
+                                    <label for="quote_rejection_reason"><?php echo htmlsc(trans('quote_rejection_reason')); ?></label>
+                                    <textarea name="quote_rejection_reason" id="quote_rejection_reason" class="form-control" rows="3"
+                                              maxlength="2000" aria-describedby="quote-rejection-help"><?php echo htmlsc($quote->quote_rejection_reason ?? ''); ?></textarea>
+                                    <span id="quote-rejection-help" class="help-block"><?php echo htmlsc(trans('quote_rejection_reason_help')); ?></span>
                                 </div>
                                 <div class="quote-properties">
                                     <label for="quote_password">

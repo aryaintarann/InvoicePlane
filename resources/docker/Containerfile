@@ -51,6 +51,13 @@ COPY htaccess /var/www/html/.htaccess
 RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' \
 	/etc/apache2/apache2.conf
 
+RUN printf '%s\n' 'SetEnvIf Request_URI "^/(index[.]php/)?invoices/cron/recur/" invoiceplane_cron' \
+		> /etc/apache2/conf-available/invoiceplane-cron-logging.conf \
+	&& a2enconf invoiceplane-cron-logging \
+	&& sed -i '/^[[:space:]]*CustomLog / s/$/ env=!invoiceplane_cron/' \
+		/etc/apache2/sites-available/000-default.conf \
+		/etc/apache2/conf-available/other-vhosts-access-log.conf
+
 RUN chown -R www-data:www-data /var/www/html \
 	&& find /var/www/html -type d -exec chmod 755 {} \; \
 	&& find /var/www/html -type f -exec chmod 644 {} \;
@@ -62,6 +69,7 @@ VOLUME ["/var/www/html/uploads", "/var/www/html/storage"]
 EXPOSE 80
 
 COPY resources/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY resources/docker/scheduler.php /usr/local/bin/scheduler.php
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 ENTRYPOINT ["entrypoint.sh"]

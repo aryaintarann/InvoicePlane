@@ -28,6 +28,17 @@ class Ajax extends Admin_Controller
 
         $quote_id = $this->security->xss_clean($this->input->post('quote_id', true));
 
+        try {
+            $rejection_reason = Mdl_quotes::normalize_rejection_reason($this->input->post('quote_rejection_reason'));
+        } catch (InvalidArgumentException $exception) {
+            $this->json_encode_ajax([
+                'success'           => 0,
+                'validation_errors' => ['quote_rejection_reason' => htmlsc($exception->getMessage())],
+            ]);
+
+            return;
+        }
+
         $this->mdl_quotes->set_id($quote_id);
 
         if ($this->mdl_quotes->run_validation('validation_rules_save_quote')) {
@@ -143,6 +154,9 @@ class Ajax extends Admin_Controller
                 'quote_discount_amount'  => standardize_amount($quote_discount_amount),
                 'quote_discount_percent' => standardize_amount($quote_discount_percent),
             ];
+            if ($this->input->post('quote_rejection_reason') !== null) {
+                $db_array['quote_rejection_reason'] = $rejection_reason;
+            }
 
             $this->mdl_quotes->save($quote_id, $db_array, $global_discount);
 

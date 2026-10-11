@@ -31,6 +31,19 @@
  * community forums at https://community.invoiceplane.com/
  */
 $lang = [
+    'quote_rejection_reason' => 'Alasan penolakan',
+    'quote_rejection_reason_help' => 'Opsional. Maksimal 2.000 karakter.',
+    'quote_rejection_reason_invalid' => 'Masukkan alasan yang valid, maksimal 2.000 karakter.',
+    'add_family' => 'Add Product Category',
+    'any_family' => 'Any Product Category',
+    'families' => 'Product Categories',
+    'family' => 'Product Category',
+    'family_already_exists' => 'Product category already exists!',
+    'family_name' => 'Category Name',
+    'filter_families' => 'Filter Product Categories',
+    'product_families' => 'Product Categories',
+    'select_family' => 'Select Product Category',
+    'view_product_families' => 'View Product Categories',
     'product_cost_price' => 'HPP (Harga Modal)',
     'product_shipping_cost' => 'Ongkir',
     'product_total_cost' => 'Total HPP',
