@@ -279,7 +279,7 @@ class Ajax extends Admin_Controller
         foreach ($keywords as $keyword) {
             if ($keyword) {
                 $keyword = mb_strtolower($keyword);
-                $this->mdl_products->like("CONCAT_WS('^',product_sku,LOWER(family_name),LOWER(product_name),LOWER(product_description),product_price,product_tariff)", $keyword);
+                $this->mdl_products->like("CONCAT_WS('^',LOWER(COALESCE(ip_product_skus.sku_code,ip_products.product_sku)),LOWER(family_name),LOWER(product_name),LOWER(product_description),product_price,product_tariff)", $keyword);
             }
         }
 

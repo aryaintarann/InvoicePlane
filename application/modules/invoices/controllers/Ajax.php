@@ -18,6 +18,45 @@ class Ajax extends Admin_Controller
 {
     public $ajax_controller = true;
 
+    public function last_product_price(): void
+    {
+        $this->output->set_content_type('application/json');
+        $product_id = $this->input->get('product_id');
+        $invoice_id = $this->input->get('invoice_id');
+        $quote_id = $this->input->get('quote_id');
+        $document_id = $quote_id ?? $invoice_id;
+        foreach ([$product_id, $document_id] as $id) {
+            if (($quote_id !== null && $invoice_id !== null)
+                || ! is_string($id) || ! preg_match('/\A[1-9][0-9]{0,9}\z/', $id) || (int) $id > 2147483647) {
+                $this->output->set_status_header(400);
+                $this->json_encode_ajax(['success' => 0]);
+
+                return;
+            }
+        }
+        $is_quote = $quote_id !== null;
+        $table = $is_quote ? 'ip_quotes' : 'ip_invoices';
+        $id_field = $is_quote ? 'quote_id' : 'invoice_id';
+        if ( ! $this->db->select($id_field)->get_where($table, [$id_field => (int) $document_id])->row()) {
+            $this->output->set_status_header(404);
+            $this->json_encode_ajax(['success' => 0]);
+
+            return;
+        }
+        $this->load->model('invoices/mdl_items');
+        $this->load->helper('product_amount');
+        $history = $this->mdl_items->last_sent_product_price((int) $product_id, $is_quote ? 0 : (int) $invoice_id);
+        $this->json_encode_ajax([
+            'success' => 1,
+            'history' => $history ? [
+                'price' => format_product_amount($history->item_price),
+                'invoice_id' => (int) $history->invoice_id,
+                'invoice_number' => $history->invoice_number,
+                'invoice_date' => date_from_mysql($history->invoice_date_created),
+            ] : null,
+        ]);
+    }
+
     public function save()
     {
         $this->load->model([

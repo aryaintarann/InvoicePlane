@@ -7,7 +7,9 @@
                 <th><?php _trans('product_sku'); ?></th>
                 <th><?php _trans('product_name'); ?></th>
                 <th><?php _trans('product_description'); ?></th>
-                <th class="amount last"><?php _trans('product_price'); ?></th>
+                <th class="amount"><?php _trans('product_cost_price'); ?></th>
+                <th class="amount"><?php _trans('product_shipping_cost'); ?></th>
+                <th class="amount last"><?php _trans('product_sales_price'); ?></th>
                 <th><?php _trans('product_unit'); ?></th>
                 <th><?php _trans('tax_rate'); ?></th>
 <?php
@@ -28,9 +30,15 @@ foreach ($products as $product) {
     ?>
                 <tr>
                     <td><a href="<?php echo site_url('families/form/' . $product->family_id); ?>"><i class="fa fa-edit"></i> <?php _htmlsc($product->family_name); ?></a></td>
-                    <td><?php _htmlsc($product->product_sku); ?></td>
+                    <td><?php _htmlsc($product->product_sku); ?>
+<?php if ( ! $product->product_sku_id) { ?>
+                        <br><a href="<?php echo site_url('products/form/' . (int) $product->product_id); ?>"><?php _trans('sku_select'); ?></a>
+<?php } ?>
+                    </td>
                     <td><a href="<?php echo site_url('products/form/' . $product->product_id); ?>"><i class="fa fa-edit"></i> <?php _htmlsc($product->product_name); ?></a></td>
                     <td><?php echo nl2br(htmlsc($product->product_description)); ?></td>
+                    <td class="amount"><?php echo $product->purchase_price !== null ? format_currency($product->purchase_price) : ''; ?></td>
+                    <td class="amount"><?php echo format_currency($product->product_shipping_cost); ?></td>
                     <td class="amount last"><?php echo format_currency($product->product_price); ?></td>
                     <td><?php _htmlsc($product->unit_name); ?></td>
                     <td><?php echo ($product->tax_rate_id) ? htmlsc($product->tax_rate_name) : trans('none'); ?></td>

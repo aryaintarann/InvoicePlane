@@ -72,6 +72,8 @@
                     <ul class="dropdown-menu">
                         <li><?php echo anchor('products/form', trans('create_product')); ?></li>
                         <li><?php echo anchor('products/index', trans('view_products')); ?></li>
+                        <li><?php echo anchor('products/skus/form', trans('sku_create')); ?></li>
+                        <li><?php echo anchor('products/skus/index', trans('sku_list')); ?></li>
                         <li><?php echo anchor('families/index', trans('view_product_families')); ?></li>
                         <li><?php echo anchor('units/index', trans('view_product_units')); ?></li>
                     </ul>

@@ -30,4 +30,28 @@
  * For more information, see the ip_lang.php file or visit the
  * community forums at https://community.invoiceplane.com/
  */
-$lang = [];
+$lang = [
+    'product_cost_price' => 'HPP (Harga Modal)',
+    'product_shipping_cost' => 'Ongkir',
+    'product_total_cost' => 'Total HPP',
+    'product_sales_price' => 'Harga Jual',
+    'product_margin' => 'Margin Produk',
+    'product_margin_formula' => 'Margin per unit = Harga Jual − Total HPP.',
+    'invoice_last_product_price' => 'Harga terakhir:',
+    'invoice_last_product_price_empty' => 'Belum ada harga barang ini pada invoice terkirim.',
+    'invoice_last_product_price_loading' => 'Memuat harga terakhir…',
+    'invoice_last_product_price_error' => 'Harga terakhir belum dapat dimuat.',
+    'product_prices_per_unit' => 'Harga Produk per Unit',
+    'product_amount_invalid' => '{field} harus berupa nominal tidak negatif dengan format angka sesuai pengaturan aplikasi dan ketelitian maksimal 2 angka desimal.',
+    'sku_create' => 'Create SKU',
+    'sku_list' => 'SKU',
+    'sku_edit' => 'Edit SKU',
+    'sku_select' => 'Pilih SKU',
+    'sku_invalid' => 'Pilih SKU yang tersedia.',
+    'sku_already_exists' => 'SKU sudah terdaftar.',
+    'sku_shipping_per_unit' => 'Ongkir per Unit',
+    'sku_shipping_shared' => 'Perubahan ongkir berlaku untuk semua produk yang memakai SKU ini.',
+    'sku_shipping_readonly' => 'Ongkir mengikuti SKU. Ubah ongkir melalui menu SKU.',
+    'sku_legacy_unlinked' => 'SKU lama belum terhubung. Pilih SKU untuk menentukan ongkir produk ini.',
+    'sku_empty' => 'Belum ada SKU. Gunakan Create SKU untuk menambahkan SKU barang.',
+];

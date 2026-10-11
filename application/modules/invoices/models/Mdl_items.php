@@ -41,6 +41,30 @@ class Mdl_Items extends Response_Model
         $this->db->join('ip_products', 'ip_products.product_id = ip_invoice_items.item_product_id', 'left');
     }
 
+    public function last_sent_product_price(int $product_id, int $exclude_invoice_id): ?object
+    {
+        return $this->db
+            ->select('ip_invoice_items.item_price, ip_invoices.invoice_id, ip_invoices.invoice_number, ip_invoices.invoice_date_created')
+            ->from('ip_invoice_items')
+            ->join('ip_invoices', 'ip_invoices.invoice_id = ip_invoice_items.invoice_id')
+            ->join('ip_invoice_amounts', 'ip_invoice_amounts.invoice_id = ip_invoices.invoice_id')
+            ->where('ip_invoice_items.item_product_id', $product_id)
+            ->where('ip_invoices.invoice_id !=', $exclude_invoice_id)
+            ->where_in('ip_invoices.invoice_status_id', [2, 3, 4])
+            ->where('ip_invoice_amounts.invoice_sign', '1')
+            ->group_start()
+            ->where('ip_invoices.creditinvoice_parent_id', null)
+            ->or_where('ip_invoices.creditinvoice_parent_id', 0)
+            ->group_end()
+            ->order_by('ip_invoices.invoice_date_created', 'DESC')
+            ->order_by('ip_invoices.invoice_time_created', 'DESC')
+            ->order_by('ip_invoices.invoice_id', 'DESC')
+            ->order_by('ip_invoice_items.item_order', 'DESC')
+            ->order_by('ip_invoice_items.item_id', 'DESC')
+            ->limit(1)
+            ->get()->row();
+    }
+
     /**
      * @return array
      */

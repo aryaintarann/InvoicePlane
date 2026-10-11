@@ -34,7 +34,7 @@
                     last_item_row.find('input[name=item_price]').val(items[key].product_price);
                     last_item_row.find('input[name=item_quantity]').val('1');
                     last_item_row.find('select[name=item_tax_rate_id]').val(items[key].tax_rate_id);
-                    last_item_row.find('input[name=item_product_id]').val(items[key].product_id);
+                    last_item_row.find('input[name=item_product_id]').val(items[key].product_id).trigger('change');
                     last_item_row.find('select[name=item_product_unit_id]').val(items[key].unit_id);
 
                     $('#modal-choose-items').modal('hide');

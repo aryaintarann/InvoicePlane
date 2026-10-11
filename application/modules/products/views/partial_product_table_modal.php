@@ -6,7 +6,7 @@
             <th><?php _trans('family_name'); ?></th>
             <th><?php _trans('product_name'); ?></th>
             <th><?php _trans('product_description'); ?></th>
-            <th class="amount"><?php _trans('product_price'); ?></th>
+            <th class="amount"><?php _trans('product_sales_price'); ?></th>
         </tr>
         <?php foreach ($products as $product) { ?>
             <tr class="product">

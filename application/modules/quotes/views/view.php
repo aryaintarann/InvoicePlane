@@ -480,6 +480,7 @@ foreach ($custom_fields as $custom_field) {
         </div>
 
 <?php $this->layout->load_view('quotes/partial_itemlist_' . (get_setting('show_responsive_itemlist') ? 'responsive' : 'table')); ?>
+<?php $this->layout->load_view('invoices/partial_price_history', ['price_history_document' => ['quote_id' => (int) $quote_id]]); ?>
 
         <hr/>
 

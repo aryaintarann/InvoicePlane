@@ -622,6 +622,7 @@ if ($invoice->invoice_status_id != 1) {
             <br>
 
 <?php $this->layout->load_view('invoices/partial_itemlist_' . (get_setting('show_responsive_itemlist') ? 'responsive' : 'table')); ?>
+<?php $this->layout->load_view('invoices/partial_price_history'); ?>
 
             <hr>
 

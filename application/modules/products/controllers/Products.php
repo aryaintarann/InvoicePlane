@@ -66,12 +66,19 @@ class Products extends Admin_Controller
         $this->load->model('families/mdl_families');
         $this->load->model('units/mdl_units');
         $this->load->model('tax_rates/mdl_tax_rates');
+        $this->load->model('products/mdl_skus');
+        $sku_id = $this->mdl_products->form_value('product_sku_id');
+        $selected_sku = is_scalar($sku_id) && ctype_digit((string) $sku_id) ? $this->mdl_skus->get_by_id($sku_id) : null;
+        if ($selected_sku || $this->input->method() === 'post') {
+            $this->mdl_products->set_form_value('product_shipping_cost', $selected_sku->sku_shipping_cost ?? '0');
+        }
 
         $this->layout->set(
             [
                 'families'  => $this->mdl_families->get()->result(),
                 'units'     => $this->mdl_units->get()->result(),
                 'tax_rates' => $this->mdl_tax_rates->get()->result(),
+                'skus' => $this->mdl_skus->get()->result(),
             ]
         );
 
